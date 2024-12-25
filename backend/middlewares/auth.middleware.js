@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
+import redisClient from "../services/redis.service.js";
 
 export const authUser = async (req,res,next) => {
   try {
@@ -17,7 +18,13 @@ export const authUser = async (req,res,next) => {
   
     // Extract token: use authHeader if available, otherwise fall back to loginToken from cookies
     const token = authHeader ? authHeader.split(" ")[1] : loginToken;
-  
+    
+    const isBlacklisted = await redisClient.get(token);
+    if(isBlacklisted){
+        res.cookie("token",'');
+        return res.status(401).json({message:"Token is blacklisted"});
+    }
+
     const decoded = jwt.verify(token,process.env.JWT_SECRET);
     const user = await userModel.findById(decoded.id);
     req.user = user;
