@@ -13,8 +13,9 @@ const {email,password} = req.body;
 try{
     const user = await userService.createUser({email,password});
     const token = await user.generateJWT();
+    delete user._doc.password;
    
-    res.status(201).json({user,token});
+    res.status(201).json({ user, token});
     if(res.statusCode === 201){
         console.log("User created successfully");
     }
@@ -37,6 +38,8 @@ export const loginUserController = async (req,res) => {
     if(!isValidPassword) return res.status(401).json({error:"Invalid password or credentials"});
     
     const token = await user.generateJWT();
+
+    delete user._doc.password;
     
     res.status(200).json({user,token});
     if(res.statusCode === 200){

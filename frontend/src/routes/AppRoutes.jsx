@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Login from '../screen/Login';
-import Register from '../screen/Register';
-import Home from '../screen/Home';
+import Login from '../screens/Login';
+import Register from '../screens/Register';
+import Home from '../screens/Home';
 
 const AppRoutes = () => {
   return (
