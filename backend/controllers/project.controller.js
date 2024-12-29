@@ -13,6 +13,12 @@ const {name, description} = req.body;
 const loggedInUser = await userModel.findOne({email:req.user.email});
 const userId = loggedInUser._id;
 
+// Check if the project name already exists
+const existingProject = await projectModel.findOne({ name });
+if (existingProject) {
+    return res.status(400).json({ error: "Project name must be unique." });
+}
+
 try{
     const newProject = await projectService.createProject({name, description, userId});
     res.status(201).json(newProject);
