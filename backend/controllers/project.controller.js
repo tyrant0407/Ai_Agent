@@ -21,7 +21,7 @@ if (existingProject) {
 
   try {
       const newProject = await projectService.createProject({name, description, userId});
-      res.status(201).json(newProject);
+      res.status(201).json({project:newProject});
   } catch(error){
       console.log(error);
       res.status(500).json({error:error.message});
@@ -34,7 +34,7 @@ export const getAllProjects = async (req, res) => {
     const loggedInUser = await userModel.findOne({email:req.user.email});
     const userId = loggedInUser._id;
     const allUsersProjects = await projectService.getAllProjectByUserId({userId});
-    res.status(200).json(allUsersProjects);
+    res.status(200).json({projects:allUsersProjects});
   } catch (error) {
     console.log(error);
     res.status(400).json({error:error.message});
@@ -51,7 +51,7 @@ export const addUserToProject = async (req, res) => {
     const loggedInUser = await userModel.findOne({email:req.user.email});
     const userId = loggedInUser._id;
     const project = await projectService.addUsersToProject({projectId, users, userId});
-    res.status(200).json({project});
+    res.status(200).json({project:project});
   } catch (error) {
     console.log(error); 
     res.status(400).json({error:error.message});

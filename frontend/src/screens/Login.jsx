@@ -11,15 +11,27 @@ function LoginPage() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-try {
-    const response = await axios.post('/users/login', { email, password })
-    console.log(response.data);
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    navigate('/');
-} catch (error) {
-    console.log(error);
-}
+  
+    try {
+      // Make API call
+      const response = await axios.post('/users/login', { email, password });
+  
+      // Store token and user information
+      localStorage.setItem('token', response.data.token);
+      console.log('Login successful:', response.data);
+  
+      // Set user context or state
+      setUser(response.data.user);
+  
+      // Navigate to the home page
+      navigate('/');
+    } catch (error) {
+      // Log the error for debugging
+      console.error('Login failed:', error);
+  
+      // Optional: Display a user-friendly message
+      alert(error.response?.data?.message || 'Login failed. Please try again.');
+    }
   };
 
   return (
