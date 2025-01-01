@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for the Ai chat agent",
   "main": "server.js",
   "type": "module",
   "scripts": {

@@ -87,6 +87,7 @@ const Project = () => {
             <i className="ri-group-fill text-xl"></i>
           </button>
         </header>
+        {/* conversation-area */}
         <div className="conversation-area flex-grow flex flex-col">
           <div className="message-box flex-grow flex flex-col gap-1 p-1">
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
@@ -110,7 +111,8 @@ const Project = () => {
         {/* SIDE PANEL */}
         
         <div className={`sidePanel min-w-96 h-full flex flex-col gap-2 absolute transition-all duration-300 top-0 ${isSidePanelOpen ? 'translate-x-0' : '-translate-x-full'}  bg-slate-100 `}>
-          <header className='flex justify-end p-2 px-4 w-full bg-slate-400'>
+          <header className='flex justify-between p-2 px-4 w-full bg-slate-400 items-center'>
+            <h1 className='text-md font-bold text-black'>Collaborators</h1>
             <button className='p-2'
             onClick={()=>setIsSidePanelOpen(!isSidePanelOpen)}
             >
@@ -118,7 +120,7 @@ const Project = () => {
             </button>
           </header>
           <div className='users flex flex-col gap-2 p-2'> 
-           {project.users.map((user)=>(
+           {project.users && project.users.map((user)=>(
             <div key={user._id} className="user flex gap-2 items-center cursor-pointer hover:bg-slate-300 p-2 rounded-md bg-slate-200 transition-all duration-100">
                <div className='aspect-square h-fit w-fit rounded-full bg-slate-800 flex justify-center items-center p-4'>
                 <i className="ri-user-fill text-xl text-slate-50 absolute"></i>
