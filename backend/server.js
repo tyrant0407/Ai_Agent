@@ -16,6 +16,7 @@ io.use((socket,next)=>{
             throw new Error("Authentication failed");
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
         if(!decoded){
             throw new Error("Authentication failed");
         }
