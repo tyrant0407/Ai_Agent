@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../config/Axios';
-import { initializeSocket } from '../config/Socket';
+import { initializeSocket, disconnectSocket } from '../config/Socket';
 
 const Project = () => {
   const location = useLocation();
@@ -15,11 +15,16 @@ const Project = () => {
 
   // Fetch users when modal opens
   useEffect(() => {
-    initializeSocket();
     if (isAddUserModalOpen) {
       fetchUsers();
     }
     getProject();
+    initializeSocket();
+
+    // Cleanup socket when app unmounts
+    return () => {
+      disconnectSocket();
+    };
   }, [isAddUserModalOpen]);
 
   const fetchUsers = async () => {

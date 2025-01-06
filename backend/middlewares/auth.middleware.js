@@ -8,7 +8,7 @@ export const authUser = async (req,res,next) => {
     const loginToken = req.cookies.token;
     
     // Log the authHeader for debugging purposes
-    console.log(`Authorization Header: ${authHeader || 'Not provided'}`);
+    // console.log(`Authorization Header: ${authHeader || 'Not provided'}`);
     
     // If both authHeader and loginToken are missing, deny access
     if (!authHeader && !loginToken) {
