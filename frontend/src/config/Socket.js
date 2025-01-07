@@ -43,3 +43,11 @@ export const disconnectSocket = () => {
         socketInstance = null;
     }
 };
+
+export const receiveMessage = (eventName,cb)=>{
+    socketInstance.on(eventName,cb);
+}
+
+export const sendMessage = (eventName,data)=>{
+    socketInstance.on(eventName,data);
+}

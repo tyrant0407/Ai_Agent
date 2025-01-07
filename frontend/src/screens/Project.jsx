@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../config/Axios';
-import { initializeSocket, disconnectSocket } from '../config/Socket';
+import { initializeSocket, disconnectSocket , sendMessage, receiveMessage} from '../config/Socket';
 
 const Project = () => {
   const location = useLocation();
