@@ -8,7 +8,9 @@ const errors = validationResult(req);
 if(!errors.isEmpty()) {
     return res.status(400).json({errors:errors.array()});
 }
-
+if (!req.user) {
+  return res.status(401).json({ error: 'not project token' });
+}
 const {name, description} = req.body;
 const loggedInUser = await userModel.findOne({email:req.user.email});
 const userId = loggedInUser._id;

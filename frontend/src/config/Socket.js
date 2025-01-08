@@ -2,9 +2,8 @@ import socket from "socket.io-client";
 
 let socketInstance = null;
 
-export const initializeSocket = () => {
+export const initializeSocket = (projectId) => {
     if (socketInstance) return socketInstance; // Singleton pattern
-
     const token = localStorage.getItem('token');
     if (!token) {
         throw new Error('Authentication token not found');
@@ -12,6 +11,7 @@ export const initializeSocket = () => {
 
     socketInstance = socket(import.meta.env.VITE_API_URL, {
         auth: { token },
+        query: { projectId },
     });
 
     // Event handlers

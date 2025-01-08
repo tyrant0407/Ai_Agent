@@ -32,6 +32,7 @@ const Home = () => {
     const fetchProjects = async () => {
       try {
         const res = await axios.get('/projects/all');
+        console.log(res.data.projects);
         setProjects(res.data.projects || []);
       } catch (err) {
         console.error('Error fetching projects:', err);
