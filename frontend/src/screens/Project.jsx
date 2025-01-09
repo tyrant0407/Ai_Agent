@@ -14,6 +14,7 @@ const Project = () => {
   const [project, setProject] = useState(location.state.project)
   const [message, setMessage] = useState('');
   const {user} = useContext(UserContext);
+  const messageBox = React.createRef();
 
   const fetchUsers = async () => {
     try {
@@ -53,17 +54,21 @@ const Project = () => {
     try {
       const response = await axios.get(`/projects/get-project/${project._id}`);
       setProject(response.data.project);
-      // console.log({Project: response.data.project,success:true});
     } catch (error) {
       console.error('Error fetching project:', error);
     }
   };
-  //  console.log(user);
+   
   const sendMessageToProject = () =>{
-    sendMessage("project-message", {
+    sendMessage("project-message", { 
       message: message,
-      sender: user._id,
+      sender: user,
     })
+    console.log(message);
+    appendOutgoingMessage({
+      message: message,
+      sender: user,
+    });
     setMessage('');
   }
 
@@ -78,13 +83,33 @@ const Project = () => {
     }
     getProject();
     initializeSocket(project._id);
-    console.log(user);
-    //receive message
-    receiveMessage("project-message", data=>{
-      console.log(data);
-    })
+    // Listen for incoming project messages
+    receiveMessage("project-message", data => {
+      console.log("Received message:", data);
+      // Update your UI or state with the new message
+      appendIncomingMessage(data);  
+    });
   
   }, [isAddUserModalOpen]);
+
+  const appendIncomingMessage = (messageObject) => {
+    const messageBox = document.querySelector('.message-box');
+
+    const message = document.createElement('div');
+    message.classList.add('message', 'max-w-56', 'flex', 'flex-col', 'p-2', 'bg-slate-50', 'w-fit', 'rounded-md');
+    message.innerHTML = `<small class='opacity-65 text-xs'>${messageObject.sender.email}</small> <p class='text-sm'>${messageObject.message}</p>`;
+    messageBox.appendChild(message);
+  }
+
+  const appendOutgoingMessage = (messageObject) => {
+    const messageBox = document.querySelector('.message-box');
+
+    const message = document.createElement('div');
+    message.classList.add('message', 'ml-auto', 'max-w-56', 'flex', 'flex-col', 'p-2', 'bg-slate-50', 'w-fit', 'rounded-md');
+    message.innerHTML = `<small class='opacity-65 text-xs'>${messageObject.sender.email}</small> <p class='text-sm'>${messageObject.message}</p>`;
+    messageBox.appendChild(message);
+  }
+
   return (
     <main className='h-screen w-screen flex'>
       <section className="left flex flex-col h-full min-w-96 bg-slate-200">
@@ -105,7 +130,9 @@ const Project = () => {
         </header>
         {/* conversation-area */}
         <div className="conversation-area flex-grow flex flex-col">
-          <div className="message-box flex-grow flex flex-col gap-1 p-1">
+          <div 
+          ref={messageBox} 
+          className="message-box flex-grow flex flex-col gap-1 p-1">
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
               <small className='opacity-65 text-xs '>example@gmail.com</small>
                <p className='text-sm'>Lorem ipsum dolor sit amet.</p>

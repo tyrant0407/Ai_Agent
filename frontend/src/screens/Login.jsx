@@ -8,7 +8,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
-  console.log(setUser);
+
 
   const submitHandler = async (e) => {
     e.preventDefault();

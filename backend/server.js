@@ -23,7 +23,7 @@ io.use(async(socket,next)=>{
             throw new Error("Invalid Project id");
         }
 
-        socket.project = await projectModel.findById(projectId);
+        socket.project = await projectModel.findById(projectId).lean();
 
         if(!token){
             throw new Error("Authentication failed");
@@ -43,11 +43,13 @@ io.use(async(socket,next)=>{
 
 
 io.on('connection', socket => {
+    socket.roomId = socket.project._id.toString();
+    console.log(socket.roomId);
     console.log(`User connected: ${socket.id}`);
-    socket.join(socket.project._id);
+    socket.join(socket.roomId);
     socket.on("project-message", data =>{
         console.log(data);
-        socket.broadcast.to(socket.project._id).emit("project-message", data);
+        socket.broadcast.to(socket.roomId).emit("project-message", data);
     })
 
   socket.on('event', data => { /* … */ });

@@ -30,12 +30,6 @@ export const initializeSocket = (projectId) => {
     return socketInstance;
 };
 
-export const getSocket = () => {
-    if (!socketInstance) {
-        return initializeSocket();
-    }
-    return socketInstance;
-};
 
 export const disconnectSocket = () => {
     if (socketInstance) {
@@ -44,10 +38,18 @@ export const disconnectSocket = () => {
     }
 };
 
-export const receiveMessage = (eventName,cb)=>{
-    socketInstance.on(eventName,cb);
-}
+export const receiveMessage = (eventName, cb) => {
+    if (socketInstance) {
+        socketInstance.on(eventName, cb); // Correct usage for receiving messages
+    } else {
+        console.error("Socket instance not initialized");
+    }
+};
 
-export const sendMessage = (eventName,data)=>{
-    socketInstance.on(eventName,data);
-}
+export const sendMessage = (eventName, data) => {
+    if (socketInstance) {
+        socketInstance.emit(eventName, data); // Correct usage
+    } else {
+        console.error("Socket instance not initialized");
+    }
+};
