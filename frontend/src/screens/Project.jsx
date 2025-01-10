@@ -85,12 +85,11 @@ const Project = () => {
     initializeSocket(project._id);
     // Listen for incoming project messages
     receiveMessage("project-message", data => {
-      console.log("Received message:", data);
       // Update your UI or state with the new message
       appendIncomingMessage(data);  
     });
   
-  }, [isAddUserModalOpen]);
+  }, []);
 
   const appendIncomingMessage = (messageObject) => {
     const messageBox = document.querySelector('.message-box');
@@ -112,7 +111,7 @@ const Project = () => {
 
   return (
     <main className='h-screen w-screen flex'>
-      <section className="left flex flex-col h-full min-w-96 bg-slate-200">
+      <section className="left flex flex-col h-screen min-w-96 bg-slate-200">
         <header className='flex justify-between p-2 px-4 w-full bg-slate-400'>
           <button 
             className='p-2 flex items-center gap-1 text-black'
@@ -130,18 +129,12 @@ const Project = () => {
         </header>
         {/* conversation-area */}
         <div className="conversation-area flex-grow flex flex-col">
+        <div className="flex flex-col flex-grow  w-full">
           <div 
           ref={messageBox} 
           className="message-box flex-grow flex flex-col gap-1 p-1">
-            <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
-              <small className='opacity-65 text-xs '>example@gmail.com</small>
-               <p className='text-sm'>Lorem ipsum dolor sit amet.</p>
-              </div>
-              <div className="message ml-auto max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
-              <small className='opacity-65 text-xs '>example@gmail.com</small>
-               <p className='text-sm'>Lorem ipsum dolor sit amet.</p>
-              </div>
-            <div className="outgoing"></div>
+          
+          </div>
           </div>
           <div className="inputField w-full flex">
             <input onChange={(e)=>setMessage(e.target.value)} value={message} className='p-2 px-4 w-[85%] bg-white' type="text" placeholder='Enter a message' />
