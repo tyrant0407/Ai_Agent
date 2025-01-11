@@ -44,7 +44,6 @@ io.use(async(socket,next)=>{
 
 io.on('connection', socket => {
     socket.roomId = socket.project._id.toString();
-    console.log(socket.roomId);
     console.log(`User connected: ${socket.id}`);
     socket.join(socket.roomId);
     socket.on("project-message", data =>{
@@ -53,7 +52,10 @@ io.on('connection', socket => {
     })
 
   socket.on('event', data => { /* … */ });
-  socket.on('disconnect', () => { /* … */ });
+  socket.on('disconnect', () => { 
+    console.log(`User disconnected: ${socket.id}`);
+    socket.leave(socket.roomId);
+   });
 });
 
 server.listen(Port, async ()=>{
