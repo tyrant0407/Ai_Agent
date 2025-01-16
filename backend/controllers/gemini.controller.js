@@ -5,7 +5,7 @@ export const getResult = async (req, res) => {
     console.log(req.query);
     try {
         const result = await ai.generateResult(prompt);
-        res.status(200).json(result);
+        res.send(result);
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ error: error.message }); 
