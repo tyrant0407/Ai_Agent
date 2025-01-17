@@ -1,9 +1,25 @@
 import React, { useState, useEffect, useContext, useRef } from "react"
-import { useLocation } from "react-router-dom"
-import axios from "../config/Axios"
+import { useLocation } from "react-router-dom";
+import axios from "../config/Axios";
 import { initializeSocket, sendMessage, receiveMessage } from "../config/Socket"
-import { UserContext } from "../context/user.context"
-import { motion, AnimatePresence } from "framer-motion"
+import { UserContext } from "../context/user.context";
+import { motion, AnimatePresence } from "framer-motion";
+import Markdown from 'markdown-to-jsx';
+import hljs from 'highlight.js';
+function SyntaxHighlightedCode(props) {
+  const ref = useRef(null)
+
+  React.useEffect(() => {
+      if (ref.current && props.className?.includes('lang-') && window.hljs) {
+          window.hljs.highlightElement(ref.current)
+
+          // hljs won't reprocess the element unless this attribute is removed
+          ref.current.removeAttribute('data-highlighted')
+      }
+  }, [ props.className, props.children ])
+
+  return <code {...props} ref={ref} />
+}
 
 const Project = () => {
   const location = useLocation()
@@ -85,31 +101,52 @@ const Project = () => {
     }
   }
 
+  const scrolltoBottom = () => {  
+    if (messageBoxRef.current) {
+      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+    }
+  }
+
   const appendIncomingMessage = (messageObject) => {
     setProject((prev) => ({
       ...prev,
       messages: [...(prev.messages || []), messageObject],
-    }))
-    scrolltoBottom()
+    }));
+    setTimeout(scrolltoBottom, 0);
   }
 
   const appendOutgoingMessage = (messageObject) => {
     setProject((prev) => ({
       ...prev,
       messages: [...(prev.messages || []), messageObject],
-    }))
-    scrolltoBottom()
+    }));
+    setTimeout(scrolltoBottom, 0);
   }
  
-  const scrolltoBottom = () => {  
-    messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight  
-  }
-
   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  function WriteAiMessage(message) {
+
+    const messageObject = message
+
+    return (
+        <div
+            className='aidiv overflow-auto bg-gray-900 rounded-lg p-2'
+        >
+            <Markdown
+                children={messageObject}
+                options={{
+                    overrides: {
+                        code: SyntaxHighlightedCode,
+                    },
+                }}
+            />
+        </div>)
+}
 
   return (
     <main className="h-screen w-screen flex bg-gray-900 text-gray-100">
-      <section className="left relative flex flex-col h-screen min-w-96 bg-gray-800">
+      <section className="left relative flex flex-col h-screen min-w-[28vw] bg-gray-800">
         <header className="flex justify-between p-4 w-full bg-gray-700">
           <motion.button
             className="p-2 flex items-center gap-2 text-gray-100 bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
@@ -131,7 +168,7 @@ const Project = () => {
         </header>
         <div className="conversation-area flex-grow pt-4 flex flex-col overflow-auto">
           <div ref={messageBoxRef}
-           className="message-box flex-grow flex flex-col gap-2 p-4 overflow-y-auto">
+           className="message-box max-w-[28vw] flex-grow flex flex-col gap-2 p-4 overflow-y-auto">
             {project.messages &&
               project.messages.map((msg, index) => (
                 <motion.div
@@ -140,11 +177,12 @@ const Project = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   className={`message max-w-xs md:max-w-sm p-3 rounded-lg ${
-                    msg.sender._id === user._id ? "ml-auto bg-blue-600 text-white" : "bg-gray-700 text-gray-100"
+                    msg.sender._id === user._id ? "ml-auto bg-blue-600 text-white " : "bg-gray-700 text-gray-100"
                   }`}
                 >
                   <p className="text-xs opacity-75 mb-1">{msg.sender.email}</p>
-                  <p className="text-sm">{msg.message}</p>
+                  {msg.sender._id === 'ai' ? WriteAiMessage(msg.message) : <p className="text-sm">{msg.message}</p>}
+                
                 </motion.div>
               ))}
           </div>

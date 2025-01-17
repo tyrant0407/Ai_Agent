@@ -20,3 +20,11 @@ display: none;
 .message-box{
   scroll-behavior: smooth;
 }
+
+.aidiv::-webkit-scrollbar {
+  display: none;
+  
+  }
+  .aidiv{
+    scroll-behavior: smooth;
+  }

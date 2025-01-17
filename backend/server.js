@@ -5,6 +5,7 @@ import {Server} from "socket.io";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import projectModel from "./models/project.model.js";
+import { generateResult } from "./services/gemini.service.js";
 
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -46,9 +47,23 @@ io.on('connection', socket => {
     socket.roomId = socket.project._id.toString();
     console.log(`User connected: ${socket.id}`);
     socket.join(socket.roomId);
-    socket.on("project-message", data =>{
-        console.log(data);
+    socket.on("project-message", async data =>{
+        const message = data.message;
+        const aiIsPresentInMessage = message.includes('@ai' || '@AI' || '@Ai' || '@aI');
         socket.broadcast.to(socket.roomId).emit("project-message", data);
+        if(aiIsPresentInMessage){
+         const prompt = message.replace('@ai','').replace('@AI','').replace('@Ai','').replace('@aI','');
+         const result = await generateResult(prompt);
+         io.to(socket.roomId).emit("project-message",{
+            message:result,
+            sender:{
+                _id: "ai",
+                email: "AI"
+            }
+         })
+        }
+        // console.log("message",data)
+        
     })
 
   socket.on('event', data => { /* … */ });
