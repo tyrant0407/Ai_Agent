@@ -32,6 +32,16 @@ const Project = () => {
   const [message, setMessage] = useState("")
   const { user } = useContext(UserContext)
   const messageBoxRef = useRef(null)
+  const [fileTree, setFileTree] = useState({
+    "app.js": {
+      content: "console.log('Hello World')"
+    },
+    "package.json": {
+      content: `{
+      "name": "app"
+      }`
+    }
+  })
 
   useEffect(() => {
     getProject()
@@ -323,6 +333,18 @@ const Project = () => {
             </motion.div>
           )}
         </AnimatePresence>
+      </section>
+      <section className="right relative flex flex-grow h-screen min-w-[72vw] bg-gray-900">
+        <div className="explorer h-full max-w-64 min-w-52  bg-red-500">
+          <div className="file-tree w-full">
+            {Object.keys(fileTree).map((file) => (
+              <div className="tree-elment cursor-pointer flex gap-2 items-center p-2 px-4 bg-gray-800">
+                <p className=" font-semibold text-lg">{file}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="code-editor h-full"></div>
       </section>
     </main>
   )
