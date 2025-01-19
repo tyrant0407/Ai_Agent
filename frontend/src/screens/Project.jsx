@@ -42,6 +42,8 @@ const Project = () => {
       }`
     }
   })
+  const [currentFile, setCurrentFile] = useState(null)
+  const [openFiles, setOpenFiles] = useState([])
 
   useEffect(() => {
     getProject()
@@ -338,13 +340,47 @@ const Project = () => {
         <div className="explorer h-full max-w-64 min-w-52  bg-red-500">
           <div className="file-tree w-full">
             {Object.keys(fileTree).map((file) => (
-              <div className="tree-elment cursor-pointer flex gap-2 items-center p-2 px-4 bg-gray-800">
+              <button 
+              onClick={() => {
+                setCurrentFile(file)
+                setOpenFiles([...openFiles, file])
+              }} 
+              className="tree-elment cursor-pointer flex gap-2 items-center p-2 px-4 bg-gray-800">
                 <p className=" font-semibold text-lg">{file}</p>
-              </div>
+              </button>
             ))}
           </div>
         </div>
-        <div className="code-editor h-full"></div>
+        {currentFile && (
+          <div className="code-editor h-full flex flex-col flex-grow">
+            <div className="top flex justify-between items-center align-center bg-gray-800">
+          {openFiles.map((file,index) => (
+          <div key={index} className="code-editor-header flex justify-between items-center align-center p-1 px-3 bg-gray-600 border-b border-gray-700">
+          <p className=" font-semibold text-lg p-2">{file}</p>
+          {/* <button onClick={() => setCurrentFile(null)} className="align-center">
+            <i className="ri-close-fill "></i>
+          </button> */}
+        </div>
+          ))}
+            </div>
+            <div className="bottom h-full flex flex-grow">
+          {
+             fileTree[currentFile] && (
+         <textarea name="" 
+         value={fileTree[currentFile].content}
+         onChange={(e) => {
+          setFileTree({
+            ...fileTree,
+            [currentFile]: { content: e.target.value },
+          })
+         }}
+         className="w-full h-full outline-none bg-gray-800 text-gray-100 p-4"
+         ></textarea>
+             )
+             }
+            </div>
+          </div>
+        )}
       </section>
     </main>
   )
