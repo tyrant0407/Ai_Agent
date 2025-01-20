@@ -6,20 +6,22 @@ import { UserContext } from "../context/user.context";
 import { motion, AnimatePresence } from "framer-motion";
 import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+
 function SyntaxHighlightedCode(props) {
-  const ref = useRef(null)
+  const ref = useRef(null);
 
-  React.useEffect(() => {
-      if (ref.current && props.className?.includes('lang-') && window.hljs) {
-          window.hljs.highlightElement(ref.current)
+  useEffect(() => {
+    if (ref.current && props.className?.includes('lang-')) {
+      hljs.highlightElement(ref.current);
 
-          // hljs won't reprocess the element unless this attribute is removed
-          ref.current.removeAttribute('data-highlighted')
-      }
-  }, [ props.className, props.children ])
+      // Ensure reprocessing works correctly
+      ref.current.removeAttribute('data-highlighted');
+    }
+  }, [props.className, props.children]);
 
-  return <code {...props} ref={ref} />
-}
+  return <code {...props} ref={ref} />;
+  }
 
 const Project = () => {
   const location = useLocation()
@@ -32,16 +34,7 @@ const Project = () => {
   const [message, setMessage] = useState("")
   const { user } = useContext(UserContext)
   const messageBoxRef = useRef(null)
-  const [fileTree, setFileTree] = useState({
-    "app.js": {
-      content: "console.log('Hello World')"
-    },
-    "package.json": {
-      content: `{
-      "name": "app"
-      }`
-    }
-  })
+  const [fileTree, setFileTree] = useState({})
   const [currentFile, setCurrentFile] = useState(null)
   const [openFiles, setOpenFiles] = useState([])
 
@@ -61,7 +54,7 @@ const Project = () => {
     if (messageBoxRef.current) {
       messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight
     }
-  }, [project.messages])
+  }, [project.message])
 
   const fetchUsers = async () => {
     try {
@@ -120,6 +113,12 @@ const Project = () => {
   }
 
   const appendIncomingMessage = (messageObject) => {
+
+    const message = JSON.parse(messageObject.message);
+    if(message.fileTree){
+      setFileTree(message.fileTree)
+    }
+    console.log("Received message:", JSON.parse(messageObject.message));
     setProject((prev) => ({
       ...prev,
       messages: [...(prev.messages || []), messageObject],
@@ -138,24 +137,32 @@ const Project = () => {
   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(searchQuery.toLowerCase()))
 
   function WriteAiMessage(message) {
-
-    const messageObject = JSON.parse(message)
-
+    let messageObject;
+    
+    try {
+      messageObject = JSON.parse(message);
+     
+    } catch (error) {
+      console.error("Error parsing AI message:", error);
+      return <div className="bg-red-600 text-white p-2 rounded-md">Invalid AI message format</div>;
+    }
+  
     return (
-        <div
-            className='aidiv overflow-auto bg-gray-900 rounded-lg p-2'
-        >
-            <Markdown
-                children={messageObject.text}
-                options={{
-                    overrides: {
-                        code: SyntaxHighlightedCode,
-                    },
-                }}
-            />
-        </div>)
-}
-
+      <div className='aidiv overflow-auto bg-gray-900 rounded-lg p-2'>
+        
+        <Markdown
+        
+          children={messageObject.text}
+          options={{
+            overrides: {
+              code: SyntaxHighlightedCode,
+            },
+          }}
+        />
+      </div>
+    );
+  }
+  
   return (
     <main className="h-screen w-screen flex bg-gray-900 text-gray-100">
       <section className="left relative flex flex-col h-screen min-w-[28vw] bg-gray-800">
@@ -343,7 +350,7 @@ const Project = () => {
               <button 
               onClick={() => {
                 setCurrentFile(file)
-                setOpenFiles([...openFiles, file])
+                setOpenFiles([...new Set([...openFiles, file])])
               }} 
               className="tree-elment cursor-pointer flex gap-2 items-center p-2 px-4 bg-gray-800">
                 <p className=" font-semibold text-lg">{file}</p>
@@ -353,29 +360,50 @@ const Project = () => {
         </div>
         {currentFile && (
           <div className="code-editor h-full flex flex-col flex-grow">
-            <div className="top flex justify-between items-center align-center bg-gray-800">
+            <div className="top flex  items-center align-center bg-gray-800">
           {openFiles.map((file,index) => (
-          <div key={index} className="code-editor-header flex justify-between items-center align-center p-1 px-3 bg-gray-600 border-b border-gray-700">
-          <p className=" font-semibold text-lg p-2">{file}</p>
-          {/* <button onClick={() => setCurrentFile(null)} className="align-center">
-            <i className="ri-close-fill "></i>
-          </button> */}
-        </div>
+            <button
+            key={index}
+            onClick={() => setCurrentFile(file)}
+            className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${currentFile === file ? 'bg-slate-400' : ''}`}>
+            <p
+                className='font-semibold text-lg'
+            >{file}</p>
+        </button>
           ))}
             </div>
             <div className="bottom h-full flex flex-grow">
           {
              fileTree[currentFile] && (
-         <textarea name="" 
-         value={fileTree[currentFile].content}
-         onChange={(e) => {
-          setFileTree({
-            ...fileTree,
-            [currentFile]: { content: e.target.value },
-          })
-         }}
-         className="w-full h-full outline-none bg-gray-800 text-gray-100 p-4"
-         ></textarea>
+         <div className="code-editor-area w-full h-full overflow-auto flex-grow bg-gray-800 text-gray-100 p-4">
+             <pre className="hljs h-full">
+              <code
+                className="hljs h-full outline-none"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => {
+                  const updatedContent = e.target.innerText;
+                  setFileTree((prevFileTree) => ({
+                    ...prevFileTree,
+                    [currentFile]: {
+                      file: {
+                        ...prevFileTree[currentFile].file,
+                        contents: updatedContent,
+                      },
+                    },
+                  }));
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: hljs.highlight(fileTree[currentFile].file.contents, { language: 'javascript', ignoreIllegals: true }).value,
+                }}
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  paddingBottom: '25rem',
+                  counterSet: 'line-numbering',
+                }}
+              />
+            </pre>
+         </div>
              )
              }
             </div>
@@ -387,4 +415,3 @@ const Project = () => {
 }
 
 export default Project
-
