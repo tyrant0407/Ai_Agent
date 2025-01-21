@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
+import { getWebContainer } from "../config/WebContainer"
 
 function SyntaxHighlightedCode(props) {
   const ref = useRef(null);
@@ -37,10 +38,17 @@ const Project = () => {
   const [fileTree, setFileTree] = useState({})
   const [currentFile, setCurrentFile] = useState(null)
   const [openFiles, setOpenFiles] = useState([])
+  const [webContainer, setWebContainer] = useState(null)
 
   useEffect(() => {
     getProject()
     initializeSocket(project._id)
+    if(!webContainer){
+      getWebContainer().then(container =>{
+        setWebContainer(container)
+        console.log("container started")
+      })
+    }
     receiveMessage("project-message", appendIncomingMessage)
   }, [])
 
@@ -115,6 +123,9 @@ const Project = () => {
   const appendIncomingMessage = (messageObject) => {
 
     const message = JSON.parse(messageObject.message);
+
+    webContainer?.mount(message.fileTree)
+
     if(message.fileTree){
       setFileTree(message.fileTree)
     }

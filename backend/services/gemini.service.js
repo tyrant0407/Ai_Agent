@@ -15,9 +15,9 @@ const model = genAI.getGenerativeModel({
      
     user:Create an express application 
  
-    response: {
+ response: {
      
-    "text": "this is you fileTree structure of the express server",
+    "text": "this is you fileTree structure of the express server"
     
     "fileTree": {
         "app.js": {
@@ -70,8 +70,10 @@ const model = genAI.getGenerativeModel({
 
         },
 
-    },
+       
 
+    },
+    
     "buildCommand": {
         mainItem: "npm",
             commands: [ "install" ]
@@ -81,7 +83,10 @@ const model = genAI.getGenerativeModel({
         mainItem: "node",
             commands: [ "app.js" ]
     }
+
+  
 }
+
 
     
    
