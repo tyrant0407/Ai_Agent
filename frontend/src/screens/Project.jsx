@@ -369,9 +369,10 @@ const Project = () => {
             ))}
           </div>
         </div>
-        {currentFile && (
+      
           <div className="code-editor h-full flex flex-col flex-grow">
-            <div className="top flex  items-center align-center bg-gray-800">
+            <div className="top flex w-full justify-between items-center align-center bg-gray-800">
+             <div className="files flex">
           {openFiles.map((file,index) => (
             <button
             key={index}
@@ -382,6 +383,21 @@ const Project = () => {
             >{file}</p>
         </button>
           ))}
+              </div>
+              <div className="actions">
+                <button
+                onClick={async()=>{
+                const lsProcess =  await webContainer?.spawn('ls');
+                lsProcess.output.pipeTo(new WritableStream({
+                  write(chunk)
+                  {
+                    console.log(chunk)
+                  }
+                }))
+                }}
+                className="p-2 px-4 bg-gray-700 text-white"
+                >ls</button>
+              </div>
             </div>
             <div className="bottom h-full flex flex-grow">
           {
@@ -411,6 +427,7 @@ const Project = () => {
                   whiteSpace: 'pre-wrap',
                   paddingBottom: '25rem',
                   counterSet: 'line-numbering',
+                  backgroundColor: 'transparent',
                 }}
               />
             </pre>
@@ -419,7 +436,7 @@ const Project = () => {
              }
             </div>
           </div>
-        )}
+        
       </section>
     </main>
   )
