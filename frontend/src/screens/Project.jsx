@@ -39,6 +39,7 @@ const Project = () => {
   const [currentFile, setCurrentFile] = useState(null)
   const [openFiles, setOpenFiles] = useState([])
   const [webContainer, setWebContainer] = useState(null)
+  const [iframeUrl, setIframeUrl] = useState(null)
 
   useEffect(() => {
     getProject()
@@ -357,8 +358,9 @@ const Project = () => {
       <section className="right relative flex flex-grow h-screen min-w-[72vw] bg-gray-900">
         <div className="explorer h-full max-w-64 min-w-52  bg-red-500">
           <div className="file-tree w-full">
-            {Object.keys(fileTree).map((file) => (
+            {Object.keys(fileTree).map((file,index) => (
               <button 
+              key={index}
               onClick={() => {
                 setCurrentFile(file)
                 setOpenFiles([...new Set([...openFiles, file])])
@@ -386,21 +388,34 @@ const Project = () => {
               </div>
               <div className="actions">
                 <button
-                onClick={async()=>{
-                const lsProcess =  await webContainer?.spawn('ls');
-                lsProcess.output.pipeTo(new WritableStream({
-                  write(chunk)
-                  {
-                    console.log(chunk)
-                  }
-                }))
-                }}
+                onClick={
+                  async()=>{
+                    await webContainer?.mount(fileTree)
+               const installProcess =  await webContainer?.spawn("npm",["install"])
+               installProcess.output.pipeTo(new WritableStream({
+                write(chunk){
+                  console.log(chunk)
+                }
+               }))
+               const runProcess =  await webContainer?.spawn("npm",["start"])
+               runProcess.output.pipeTo(new WritableStream({
+                write(chunk){
+                  console.log(chunk)
+                }
+               }))
+                webContainer.on('server-ready',(port,url)=>{
+                  console.log(port,url)
+                  setIframeUrl(url)
+                })
+
+                }
+              }
                 className="p-2 px-4 bg-gray-700 text-white"
-                >ls</button>
+                >Run</button>
               </div>
             </div>
             <div className="bottom h-full flex flex-grow">
-          {
+            {
              fileTree[currentFile] && (
          <div className="code-editor-area w-full h-full overflow-auto flex-grow bg-gray-800 text-gray-100 p-4">
              <pre className="hljs h-full">
@@ -413,6 +428,7 @@ const Project = () => {
                   setFileTree((prevFileTree) => ({
                     ...prevFileTree,
                     [currentFile]: {
+                      ...prevFileTree[currentFile],
                       file: {
                         ...prevFileTree[currentFile].file,
                         contents: updatedContent,
@@ -436,7 +452,19 @@ const Project = () => {
              }
             </div>
           </div>
-        
+          {iframeUrl && webContainer && (
+            <div className="flex flex-col h-full">
+               <div className="address-bar">
+                <input 
+                type="text" value={iframeUrl} 
+                onChange={(e)=>{
+                  setIframeUrl(e.target.value)
+                }}
+                className="w-full h-full bg-gray-800 text-gray-100"></input>
+               </div>
+              <iframe src={iframeUrl} className="w-1/2 h-full"></iframe>
+            </div>
+          )}
       </section>
     </main>
   )
