@@ -40,6 +40,7 @@ const Project = () => {
   const [openFiles, setOpenFiles] = useState([])
   const [webContainer, setWebContainer] = useState(null)
   const [iframeUrl, setIframeUrl] = useState(null)
+  const [runProcess, setRunProcess] = useState(null)
 
   useEffect(() => {
     getProject()
@@ -397,12 +398,19 @@ const Project = () => {
                   console.log(chunk)
                 }
                }))
-               const runProcess =  await webContainer?.spawn("npm",["start"])
-               runProcess.output.pipeTo(new WritableStream({
+
+               if(runProcess){
+                runProcess.kill()
+               }
+
+               let tempRunProcess =  await webContainer?.spawn("npm",["start"])
+               tempRunProcess.output.pipeTo(new WritableStream({
                 write(chunk){
                   console.log(chunk)
                 }
                }))
+               setRunProcess(tempRunProcess)
+               
                 webContainer.on('server-ready',(port,url)=>{
                   console.log(port,url)
                   setIframeUrl(url)
@@ -453,7 +461,7 @@ const Project = () => {
             </div>
           </div>
           {iframeUrl && webContainer && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full min-w-96 ">
                <div className="address-bar">
                 <input 
                 type="text" value={iframeUrl} 
@@ -462,7 +470,7 @@ const Project = () => {
                 }}
                 className="w-full h-full bg-gray-800 text-gray-100"></input>
                </div>
-              <iframe src={iframeUrl} className="w-1/2 h-full"></iframe>
+              <iframe src={iframeUrl} className="w-full  h-full"></iframe>
             </div>
           )}
       </section>
