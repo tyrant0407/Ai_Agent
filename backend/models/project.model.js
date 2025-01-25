@@ -10,6 +10,7 @@ const projectSchema = new mongoose.Schema({
         },
     description: { type: String, required: true },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "user"}],
+    fileTree: { type: Object, default: {} },
 });
 
 const Project = mongoose.model("project", projectSchema);
