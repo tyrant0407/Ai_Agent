@@ -43,6 +43,22 @@ const Project = () => {
   const [runProcess, setRunProcess] = useState(null)
 
   useEffect(() => {
+  
+  }, [])
+
+  useEffect(() => {
+    //fetch users
+    if (isAddUserModalOpen) {
+      fetchUsers()
+    }
+
+    //scroll to bottom of message box
+    if (messageBoxRef.current) {
+      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight
+    }
+    
+
+  //initialize socket and web container
     getProject()
     initializeSocket(project._id)
     if(!webContainer){
@@ -52,19 +68,10 @@ const Project = () => {
       })
     }
     receiveMessage("project-message", appendIncomingMessage)
-  }, [])
 
-  useEffect(() => {
-    if (isAddUserModalOpen) {
-      fetchUsers()
-    }
-  }, [isAddUserModalOpen])
+  }, [isAddUserModalOpen,project.message])
 
-  useEffect(() => {
-    if (messageBoxRef.current) {
-      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight
-    }
-  }, [project.message])
+ 
 
   const fetchUsers = async () => {
     try {
@@ -74,6 +81,7 @@ const Project = () => {
       console.error("Error fetching users:", error)
     }
   }
+
 
   const handleUserSelect = (userId) => {
     setSelectedUsers((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]))
@@ -97,6 +105,7 @@ const Project = () => {
     try {
       const response = await axios.get(`/projects/get-project/${project._id}`)
       setProject(response.data.project)
+      setFileTree(response.data.project.fileTree)
     } catch (error) {
       console.error("Error fetching project:", error)
     }
@@ -174,6 +183,17 @@ const Project = () => {
         />
       </div>
     );
+  }
+
+  const saveFileTree = async (ft) => {
+    await axios.put(`/projects/update-file-tree`, {
+      fileTree: ft,
+      projectId: project._id,
+    }).then((res)=>{
+      console.log(res)
+    }).catch((err)=>{
+      console.log(err)
+    })
   }
   
   return (
@@ -433,17 +453,17 @@ const Project = () => {
                 suppressContentEditableWarning
                 onBlur={(e) => {
                   const updatedContent = e.target.innerText;
-                  setFileTree((prevFileTree) => ({
-                    ...prevFileTree,
-                    [currentFile]: {
-                      ...prevFileTree[currentFile],
-                      file: {
-                        ...prevFileTree[currentFile].file,
-                        contents: updatedContent,
-                      },
-                    },
-                  }));
-                }}
+                  const ft = {
+                      ...fileTree,
+                      [ currentFile ]: {
+                          file: {
+                              contents: updatedContent
+                          }
+                      }
+                  }
+                  setFileTree(ft)
+                  saveFileTree(ft)
+              }}
                 dangerouslySetInnerHTML={{
                   __html: hljs.highlight(fileTree[currentFile].file.contents, { language: 'javascript', ignoreIllegals: true }).value,
                 }}
