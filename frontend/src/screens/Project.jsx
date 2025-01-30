@@ -105,7 +105,7 @@ const Project = () => {
     try {
       const response = await axios.get(`/projects/get-project/${project._id}`)
       setProject(response.data.project)
-      setFileTree(response.data.project.fileTree)
+      setFileTree(response.data.project.fileTree || {}); 
     } catch (error) {
       console.error("Error fetching project:", error)
     }
@@ -381,13 +381,13 @@ const Project = () => {
           <div className="file-tree w-full">
             {Object.keys(fileTree).map((file,index) => (
               <button 
-              key={index}
+             
               onClick={() => {
                 setCurrentFile(file)
                 setOpenFiles([...new Set([...openFiles, file])])
               }} 
               className="tree-elment cursor-pointer flex gap-2 items-center p-2 px-4 bg-gray-800">
-                <p className=" font-semibold text-lg">{file}</p>
+                <p  key={index} className=" font-semibold text-lg">{file}</p>
               </button>
             ))}
           </div>
