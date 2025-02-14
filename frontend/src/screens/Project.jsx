@@ -127,14 +127,14 @@ const Project = () => {
 
   function WriteAiMessage(message) {
 
-    const messageObject = message
+    const messageObject = JSON.parse(message)
 
     return (
         <div
             className='aidiv overflow-auto bg-gray-900 rounded-lg p-2'
         >
             <Markdown
-                children={messageObject}
+                children={messageObject.text}
                 options={{
                     overrides: {
                         code: SyntaxHighlightedCode,
@@ -177,7 +177,7 @@ const Project = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   className={`message max-w-xs md:max-w-sm p-3 rounded-lg ${
-                    msg.sender._id === user._id ? "ml-auto bg-blue-600 text-white " : "bg-gray-700 text-gray-100"
+                    msg.sender._id === user._id.toString() ? "ml-auto bg-blue-600 text-white " : "bg-gray-700 text-gray-100"
                   }`}
                 >
                   <p className="text-xs opacity-75 mb-1">{msg.sender.email}</p>
